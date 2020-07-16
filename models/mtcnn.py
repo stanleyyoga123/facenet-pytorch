@@ -189,7 +189,7 @@ class MTCNN(nn.Module):
     def __init__(
         self, image_size=160, margin=0, min_face_size=20,
         thresholds=[0.6, 0.7, 0.7], factor=0.709, post_process=True,
-        select_largest=True, keep_all=False, device=None
+        select_largest=True, keep_all=True, device=None
     ):
         super().__init__()
 
@@ -211,7 +211,7 @@ class MTCNN(nn.Module):
             self.device = device
             self.to(device)
 
-    def forward(self, img, save_path=None, return_prob=False):
+    def forward(self, img, save_path=None, return_prob=False, bounding_box=False):
         """Run MTCNN face detection on a PIL image or numpy array. This method performs both
         detection and extraction of faces, returning tensors representing detected faces rather
         than the bounding boxes. To access bounding boxes, see the MTCNN.detect() method below.
@@ -298,7 +298,12 @@ class MTCNN(nn.Module):
             probs = probs[0]
 
         if return_prob:
-            return faces, probs
+            if bounding_box:
+                return faces, probs, batch_boxes
+            else:
+                return faces, probs
+        elif bounding_box:
+            return faces, batch_boxes
         else:
             return faces
 
